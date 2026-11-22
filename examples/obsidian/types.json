@@ -1,0 +1,26 @@
+{
+  "types": {
+    "kind": "text",
+    "status": "text",
+    "type": "text",
+    "stage": "text",
+    "session": "date",
+    "submission": "date",
+    "defense": "date",
+    "deadline": "date",
+    "start": "datetime",
+    "created": "date",
+    "closed": "date",
+    "planned_hours": "number",
+    "done_hours": "number",
+    "year": "number",
+    "rating": "number",
+    "client": "text",
+    "task": "text",
+    "people": "multitext",
+    "tags": "tags",
+    "link": "text",
+    "source": "text",
+    "active": "checkbox"
+  }
+}

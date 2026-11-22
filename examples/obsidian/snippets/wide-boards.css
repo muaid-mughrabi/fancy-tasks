@@ -1,0 +1,10 @@
+/* Full-width pages for boards.
+   Notes with `cssclasses: [wide]` (Home) and opened .base files use the whole window. */
+.wide,
+.workspace-leaf-content[data-type="bases"] {
+  --file-line-width: 100%;
+}
+.wide .cm-sizer,
+.wide .markdown-preview-sizer {
+  max-width: none !important;
+}

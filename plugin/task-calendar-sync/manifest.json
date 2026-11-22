@@ -1,0 +1,9 @@
+{
+  "id": "task-calendar-sync",
+  "name": "Task Calendar Sync",
+  "version": "0.1.0",
+  "minAppVersion": "1.12.0",
+  "description": "Keeps date fields on task notes and their Google Calendar events in step, both ways. Uses the Google login of Full Calendar Remastered.",
+  "author": "<your name>",
+  "isDesktopOnly": false
+}

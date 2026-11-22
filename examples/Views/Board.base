@@ -1,0 +1,79 @@
+filters:
+  and:
+    - 'kind == "task"'
+    - '!file.inFolder("Templates")'
+formulas:
+  info: '[type, if(session, "session " + session.format("D MMM YY"), ""), if(submission, "due " + submission.format("D MMM YY"), ""), if(deadline, "due " + deadline.format("D MMM YY"), "")].filter(value).join(" · ")'
+  pipeline_info: '[if(submission, "due " + submission.format("D MMM YY"), ""), if(defense, "review " + defense.format("D MMM YY"), "")].filter(value).join(" · ")'
+properties:
+  formula.info:
+    displayName: " "
+  formula.pipeline_info:
+    displayName: " "
+views:
+  - type: kanban
+    name: Active
+    filters:
+      or:
+        - 'status != "done"'
+        - 'file.mtime > now() - "14d"'
+    groupBy:
+      property: note.status
+      direction: ASC
+    groupOrder:
+      - backlog
+      - todo
+      - doing
+      - waiting
+      - done
+    order:
+      - file.name
+      - formula.info
+  - type: kanban
+    name: Teaching
+    filters:
+      and:
+        - 'type == "teaching"'
+        - or:
+            - 'status != "done"'
+            - 'file.mtime > now() - "14d"'
+    groupBy:
+      property: note.status
+      direction: ASC
+    groupOrder:
+      - backlog
+      - todo
+      - doing
+      - waiting
+      - done
+    order:
+      - file.name
+      - formula.info
+  - type: kanban
+    name: Pipeline
+    filters: 'type == "project"'
+    groupBy:
+      property: note.stage
+      direction: ASC
+    groupOrder:
+      - idea
+      - planned
+      - active
+      - review
+      - done
+    order:
+      - file.name
+      - formula.pipeline_info
+  - type: table
+    name: All tasks
+    groupBy:
+      property: note.type
+      direction: ASC
+    order:
+      - file.name
+      - note.status
+      - note.stage
+      - note.session
+      - note.submission
+      - note.deadline
+      - note.closed

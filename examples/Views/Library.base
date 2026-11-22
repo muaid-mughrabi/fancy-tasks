@@ -1,0 +1,33 @@
+filters:
+  and:
+    - file.inFolder("Library")
+formulas:
+  info: '[kind, author].filter(value).join(" · ")'
+properties:
+  formula.info:
+    displayName: " "
+views:
+  - type: kanban
+    name: All
+    groupBy:
+      property: note.status
+      direction: ASC
+    groupOrder:
+      - backlog
+      - todo
+      - doing
+      - waiting
+      - done
+      - null
+    order:
+      - file.name
+      - formula.info
+  - type: table
+    name: Books
+    filters: 'kind == "book"'
+    order:
+      - file.name
+      - note.status
+      - note.author
+      - note.rating
+      - note.closed

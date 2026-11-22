@@ -1,0 +1,9 @@
+{
+  "calendars": { "default": "Work", "session": "" },
+  "titlePrefix": "type",
+  "typePrefixes": { "admin": "Admin", "research": "Research" },
+  "fields": { "session": "session", "submission": "due", "defense": "defense", "deadline": "deadline", "start": "start" },
+  "pollMinutes": 2,
+  "pull": true,
+  "createEvents": true
+}

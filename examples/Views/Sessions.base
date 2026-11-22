@@ -1,0 +1,43 @@
+filters:
+  and:
+    - 'kind == "session"'
+    - '!file.inFolder("Templates")'
+formulas:
+  month: 'start.format("YYYY-MM")'
+views:
+  - type: table
+    name: Sessions
+    order:
+      - file.name
+      - note.client
+      - note.start
+      - note.planned_hours
+      - note.done_hours
+      - note.status
+    sort:
+      - property: note.start
+        direction: DESC
+    summaries:
+      note.done_hours: Sum
+  - type: table
+    name: By client
+    groupBy:
+      property: note.client
+      direction: ASC
+    order:
+      - file.name
+      - note.start
+      - note.done_hours
+    summaries:
+      note.done_hours: Sum
+  - type: table
+    name: By month
+    groupBy:
+      property: formula.month
+      direction: DESC
+    order:
+      - file.name
+      - note.client
+      - note.done_hours
+    summaries:
+      note.done_hours: Sum

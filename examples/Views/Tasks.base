@@ -1,0 +1,39 @@
+filters:
+  and:
+    - 'kind == "task"'
+    - '!file.inFolder("Templates")'
+formulas:
+  info: '[if(deadline, "due " + deadline.format("D MMM YY"), ""), if(tags, tags.join(" "), "")].filter(value).join(" · ")'
+properties:
+  formula.info:
+    displayName: " "
+views:
+  - type: kanban
+    name: Active
+    filters:
+      or:
+        - 'status != "done"'
+        - 'file.mtime > now() - "14d"'
+    groupBy:
+      property: note.status
+      direction: ASC
+    groupOrder:
+      - backlog
+      - todo
+      - doing
+      - waiting
+      - done
+    order:
+      - file.name
+      - formula.info
+  - type: table
+    name: All tasks
+    groupBy:
+      property: note.status
+      direction: ASC
+    order:
+      - file.name
+      - note.status
+      - note.deadline
+      - note.tags
+      - note.closed

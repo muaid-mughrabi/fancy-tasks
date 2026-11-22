@@ -1,0 +1,19 @@
+filters:
+  or:
+    - note.session
+    - note.submission
+    - note.defense
+    - note.deadline
+views:
+  - type: table
+    name: Dates
+    order:
+      - file.name
+      - note.session
+      - note.submission
+      - note.defense
+      - note.deadline
+      - note.status
+    sort:
+      - property: note.session
+        direction: DESC

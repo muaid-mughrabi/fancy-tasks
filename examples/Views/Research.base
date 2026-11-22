@@ -1,0 +1,30 @@
+filters:
+  or:
+    - 'kind == "paper"'
+    - 'kind == "conference"'
+    - 'kind == "reference"'
+views:
+  - type: table
+    name: Papers
+    filters: 'kind == "paper"'
+    order:
+      - file.name
+      - note.status
+      - note.tags
+      - note.created
+  - type: table
+    name: Conferences
+    filters: 'kind == "conference"'
+    order:
+      - file.name
+      - note.link
+      - note.tags
+  - type: table
+    name: Reference notes
+    filters: 'kind == "reference"'
+    groupBy:
+      property: file.folder
+      direction: ASC
+    order:
+      - file.name
+      - note.type
