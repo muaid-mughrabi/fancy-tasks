@@ -20,9 +20,9 @@
 .markdown-preview-view.home .markdown-preview-section > div:has(.bases-embed) > p { margin: 0; }
 
 /* empty cards shrink to their title line and fade (they can't be hidden: Bases only renders visible views) */
-.home .bases-embed:not([src$="#Today"]):has(.bases-list-container:empty) { opacity: 0.5; padding-bottom: 8px; }
-.home .bases-embed:not([src$="#Today"]):has(.bases-list-container:empty) .bases-header { margin-bottom: 0; }
-.home .bases-embed[src$="#Today"] .bases-list-container:empty::after {
+.home .bases-embed:not([src$="#Today"]):has(.bases-list-container):not(:has(.bases-list-item)) { opacity: 0.5; padding-bottom: 8px; }
+.home .bases-embed:not([src$="#Today"]):has(.bases-list-container):not(:has(.bases-list-item)) .bases-header { margin-bottom: 0; }
+.home .bases-embed[src$="#Today"]:has(.bases-list-container):not(:has(.bases-list-item)) .bases-view::after {
   content: "Nothing planned. Pick something from the board, or enjoy the free time.";
   color: var(--text-muted);
   font-size: var(--font-ui-small);
@@ -122,11 +122,19 @@
 /* inside a fold the card's own frame and title are redundant (the fold title says it) */
 .home .callout[data-callout="fold"] .bases-embed { background: none; border: none; padding: 0 10px 8px; }
 .home .callout[data-callout="fold"] .bases-embed .bases-header { display: none; }
-.home .callout[data-callout="fold"] .bases-embed:has(.bases-list-container:empty) { opacity: 1; }
-.home .callout[data-callout="fold"] .bases-list-container:empty::after { content: "Nothing here."; color: var(--text-faint); font-size: var(--font-ui-small); }
+.home .callout[data-callout="fold"] .bases-embed:not(:has(.bases-list-item)) { opacity: 1; }
+.home .callout[data-callout="fold"] .bases-embed:has(.bases-list-container):not(:has(.bases-list-item)) .bases-view::after { content: "Nothing here."; color: var(--text-faint); font-size: var(--font-ui-small); }
 /* folds stack full width under the cards */
 .markdown-preview-view.home .markdown-preview-section > div:has(.callout) { grid-column: 1 / -1; }
 
 /* ---------- editing mode (live preview): no per-card edit buttons ---------- */
 .home .cm-embed-block .edit-block-button { display: none; }
 .home.markdown-source-view .cm-embed-block:hover { box-shadow: none; }
+
+/* ---------- phone: Obsidian mobile pads the header and hides the result count ---------- */
+.home .bases-embed .bases-header { padding: 0 !important; min-height: 0 !important; border: none !important; }
+.home .bases-embed .bases-toolbar-result-count,
+.home .bases-embed .bases-toolbar-result-count .text-icon-button,
+.home .bases-embed .bases-toolbar-result-count .text-button-label { display: inline-flex !important; height: auto !important; }
+.home .bases-embed .bases-view { border: none !important; }
+.home .bases-embed .bases-toolbar { justify-content: flex-start !important; }
