@@ -1,0 +1,9 @@
+{
+  "id": "ticket-agent",
+  "name": "Ticket Agent",
+  "version": "0.1.0",
+  "minAppVersion": "1.12.0",
+  "description": "Send a task note to a T3 Code agent, and follow its email in Fancy Mail: sent -> waiting, answer -> todo with a notification.",
+  "author": "local",
+  "isDesktopOnly": false
+}

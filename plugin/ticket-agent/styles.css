@@ -1,0 +1,31 @@
+/* Ticket activity panel (left sidebar), styled after Fancy Mail's activity drawer */
+.ticket-activity { padding: 0 !important; }
+.ticket-activity .ta-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid var(--background-modifier-border);
+  position: sticky; top: 0; background: var(--background-secondary); z-index: 1;
+}
+.ticket-activity .ta-title { font-weight: 600; font-size: 1.05em; }
+.ticket-activity .ta-filter { font-size: var(--font-ui-smaller); }
+.ticket-activity .ta-list { padding: 4px 0 16px; }
+.ticket-activity .ta-empty { padding: 16px 14px; color: var(--text-muted); font-size: var(--font-ui-small); }
+.ticket-activity .ta-item { display: flex; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--background-modifier-border-hover); }
+.ticket-activity .ta-icon {
+  flex: 0 0 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--background-modifier-hover); color: var(--text-muted);
+}
+.ticket-activity .ta-icon svg { width: 14px; height: 14px; }
+.ticket-activity .ta-agent .ta-icon { color: var(--color-blue); }
+.ticket-activity .ta-mail .ta-icon { color: var(--color-green); }
+.ticket-activity .ta-problem .ta-icon { color: var(--color-red); }
+.ticket-activity .ta-body { min-width: 0; flex: 1; font-size: var(--font-ui-small); line-height: 1.4; }
+.ticket-activity .ta-line { display: flex; gap: 8px; align-items: baseline; }
+.ticket-activity .ta-who { font-weight: 600; }
+.ticket-activity .ta-agent .ta-who { color: var(--color-blue); }
+.ticket-activity .ta-mail .ta-who { color: var(--color-green); }
+.ticket-activity .ta-problem .ta-who { color: var(--color-red); }
+.ticket-activity .ta-when { color: var(--text-faint); font-size: 0.9em; }
+.ticket-activity .ta-ticket { color: var(--text-normal); cursor: pointer; margin-top: 1px; }
+.ticket-activity .ta-ticket:hover { color: var(--text-accent); text-decoration: underline; }
+.ticket-activity .ta-text { color: var(--text-muted); margin-top: 2px; word-break: break-word; }

@@ -1,0 +1,205 @@
+# Views for the Home page (Home.md embeds them by name). Styled by the "home" CSS snippet.
+# Snoozed tickets (snooze: <date> in the future) are left out until that day.
+filters:
+  and:
+  - '!file.inFolder("Templates")'
+formulas:
+  what: if(next, "→ " + next, "⚠ add a next step")
+  when: if(status == "waiting", "🔔 follow-up due " + follow_up.relative(), if(deadline && deadline < today(), "🔴 overdue " + deadline.relative(), if(deadline && deadline <= today() + "2d", "🟠 due " + deadline.relative(), if(planned && planned < today(), "📌 planned " + planned.relative(), if(planned, "📌 today", "▶ doing")))))
+  chase: if(follow_up && follow_up <= today(), "🔔 chase now", if(follow_up, "⏳ follow up " + follow_up.relative(), ""))
+  session_time: '"🕒 " + start.format("ddd D MMM, HH:mm")'
+  due_on: '"⏰ " + deadline.format("ddd D MMM") + " (" + deadline.relative() + ")"'
+  done_on: closed.format("ddd D MMM")
+  ago: activity_at.relative()
+  owed: if(rate && billable_hours, (billable_hours * rate) + " €", if(billable_hours, billable_hours + " h", ""))
+  session_day: start.format("D MMM")
+  woke: '"💤 until " + snooze.format("ddd D MMM")'
+  expiry: if(deadline, (if(tags.contains("points"), "⏳ use by ", "valid until ") + deadline.format("D MMM YYYY") + " (" + deadline.relative() + ")"), "no expiry date yet")
+  age: '"open since " + created.format("MMM YYYY")'
+views:
+- type: list
+  name: Activity
+  limit: 6
+  filters:
+    and:
+    - activity_at && activity_at >= now() - "7d"
+  sort:
+  - property: activity_at
+    direction: DESC
+  order:
+  - file.name
+  - activity
+  - formula.ago
+- type: list
+  name: Today
+  limit: 5
+  filters:
+    and:
+    - kind == "task"
+    - status != "done"
+    - or:
+      - and:
+        - status == "waiting"
+        - follow_up && follow_up <= today()
+      - and:
+        - status != "waiting"
+        - or:
+          - status == "doing"
+          - planned && planned <= today()
+          - deadline && deadline <= today() + "2d"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: deadline
+    direction: ASC
+  - property: planned
+    direction: ASC
+  order:
+  - file.name
+  - formula.when
+  - formula.what
+- type: list
+  name: Up next
+  limit: 12
+  filters:
+    and:
+    - kind == "task"
+    - status == "todo"
+    - snooze.isEmpty() || snooze <= today()
+    - '!(planned && planned <= today())'
+    - '!(deadline && deadline <= today() + "2d")'
+    - '!(tags && (tags.contains("points") || tags.contains("coupons")))'
+  sort:
+  - property: planned
+    direction: ASC
+  - property: deadline
+    direction: ASC
+  - property: created
+    direction: ASC
+  order:
+  - file.name
+  - formula.what
+  - formula.age
+- type: list
+  name: Sessions this week
+  filters:
+    and:
+    - kind == "session"
+    - start && start >= today() && start < today() + "8d"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: start
+    direction: ASC
+  order:
+  - file.name
+  - formula.session_time
+- type: list
+  name: Due within 30 days
+  filters:
+    and:
+    - kind == "task"
+    - status != "done"
+    - deadline && deadline >= today() && deadline <= today() + "30d"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: deadline
+    direction: ASC
+  order:
+  - file.name
+  - formula.due_on
+- type: list
+  name: To sort
+  filters:
+    and:
+    - or:
+      - and:
+        - file.inFolder("Tasks")
+        - kind.isEmpty()
+      - and:
+        - kind == "task"
+        - status.isEmpty()
+    - snooze.isEmpty() || snooze <= today()
+  order:
+  - file.name
+- type: list
+  name: Waiting
+  filters:
+    and:
+    - kind == "task"
+    - status == "waiting"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: follow_up
+    direction: ASC
+  order:
+  - file.name
+  - waiting_on
+  - formula.chase
+- type: list
+  name: Unpaid sessions
+  filters:
+    and:
+    - kind == "session"
+    - payment != "paid"
+    - start && start < now()
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: start
+    direction: ASC
+  order:
+  - file.name
+  - formula.session_day
+  - formula.owed
+- type: list
+  name: Done this week
+  filters:
+    and:
+    - kind == "task"
+    - status == "done"
+    - closed && closed >= today() - "7d"
+  sort:
+  - property: closed
+    direction: DESC
+  order:
+  - file.name
+  - formula.done_on
+- type: list
+  name: Snoozed
+  filters:
+    and:
+    - kind == "task"
+    - status != "done"
+    - snooze && snooze > today()
+  sort:
+  - property: snooze
+    direction: ASC
+  order:
+  - file.name
+  - formula.woke
+- type: list
+  name: Points & coupons
+  filters:
+    and:
+    - kind == "task"
+    - status != "done"
+    - tags.contains("points") || tags.contains("coupons")
+  sort:
+  - property: deadline
+    direction: ASC
+  order:
+  - file.name
+  - formula.expiry
+  - tags
+- type: list
+  name: Backlog
+  filters:
+    and:
+    - kind == "task"
+    - status == "backlog"
+    - snooze.isEmpty() || snooze <= today()
+    - '!(tags && (tags.contains("points") || tags.contains("coupons")))'
+  sort:
+  - property: created
+    direction: ASC
+  order:
+  - file.name
+  - formula.age

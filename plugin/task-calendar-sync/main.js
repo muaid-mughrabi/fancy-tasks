@@ -18,6 +18,9 @@
  *
  * "Copy calendar changes into notes" (pull) and "Create events for new dates" (createEvents)
  * should be enabled on ONE device only. Both are off by default.
+ *
+ * It also stamps dates when a task changes status: done -> `closed` (today), waiting -> `follow_up`
+ * (a week ahead); leaving the status removes them again. This works without the calendar connection.
  */
 const { Plugin, Notice, requestUrl, moment, Modal, PluginSettingTab, Setting, TFile } = require("obsidian");
 
@@ -31,6 +34,8 @@ const DEFAULTS = {
   pollMinutes: 2,
   pull: false,          // copy calendar changes into notes (enable on ONE device only)
   createEvents: false,  // create events for new dates (enable on ONE device only)
+  stampClosed: true,    // done -> closed = today; waiting -> follow_up = today + followUpDays (removed again on leaving)
+  followUpDays: 7,
   fcToken: null,
   state: {},     // eventId -> { path, field, value, calendarId, minutes }
   lastPull: {},  // calendarId -> ISO timestamp
@@ -104,7 +109,38 @@ module.exports = class TaskCalendarSync extends Plugin {
     this.addCommand({ id: "relink", name: "Re-link existing calendar events", callback: () => this.exclusive(() => this.linkExisting(true)) });
     this.addCommand({ id: "show-log", name: "Show sync log", callback: () => new LogModal(this.app, this.log).open() });
     this.addSettingTab(new SyncSettingTab(this.app, this));
-    this.app.workspace.onLayoutReady(() => this.start());
+    this.app.workspace.onLayoutReady(() => { this.startStamping(); this.start(); });
+  }
+
+  // ------------------------------------------------------------------ closed dates
+  // Remembers each note's status. A task moved to done gets `closed: <today>`; one moved to
+  // waiting gets `follow_up` a week ahead. Leaving the status removes the date again.
+  // Works without the calendar connection.
+  startStamping() {
+    this.statusSeen = new Map();
+    for (const f of this.app.vault.getMarkdownFiles()) this.statusSeen.set(f.path, this.frontmatter(f).status ?? null);
+    this.registerEvent(this.app.metadataCache.on("changed", (file) => this.stampClosed(file)));
+    this.registerEvent(this.app.vault.on("rename", (file, oldPath) => {
+      if (this.statusSeen.has(oldPath)) { this.statusSeen.set(file.path, this.statusSeen.get(oldPath)); this.statusSeen.delete(oldPath); }
+    }));
+  }
+
+  async stampClosed(file) {
+    const fm = this.frontmatter(file);
+    const now = fm.status ?? null;
+    const before = this.statusSeen.get(file.path);
+    this.statusSeen.set(file.path, now);
+    if (this.settings.stampClosed === false || fm.kind !== "task" || before === now) return;
+    const changes = {};
+    if (now === "done" && !fm.closed) changes.closed = moment().format("YYYY-MM-DD");
+    if (before === "done" && now !== "done" && fm.closed) changes.closed = null;
+    if (now === "waiting" && !fm.follow_up) changes.follow_up = moment().add(this.settings.followUpDays || 7, "days").format("YYYY-MM-DD");
+    if (before === "waiting" && now !== "waiting" && fm.follow_up) changes.follow_up = null;
+    if (!Object.keys(changes).length) return;
+    await this.app.fileManager.processFrontMatter(file, (f) => {
+      for (const [k, v] of Object.entries(changes)) { if (v === null) delete f[k]; else f[k] = v; }
+    });
+    this.note(`${file.basename}: ${now || "no status"} - ${Object.entries(changes).map(([k, v]) => v === null ? `${k} removed` : `${k} ${v}`).join(", ")}`);
   }
 
   onunload() {
@@ -467,6 +503,7 @@ class SyncSettingTab extends PluginSettingTab {
       if (v && p.ready && !s.linked) p.exclusive(() => p.linkExisting(true));
     }));
     new Setting(containerEl).setName("Create events for new dates").addToggle((t) => t.setValue(s.createEvents === true).onChange(async (v) => { s.createEvents = v; await p.save(); }));
+    new Setting(containerEl).setName("Set closed and follow-up dates").setDesc("Done sets `closed` to today; waiting sets `follow_up` a week ahead. Moving the task on removes the date again.").addToggle((t) => t.setValue(s.stampClosed !== false).onChange(async (v) => { s.stampClosed = v; await this.plugin.save(); }));
     containerEl.createEl("p", { text: `Linked date fields: ${Object.keys(s.state).length}. Fields synced: ${Object.entries(s.fields).map(([f, l]) => `${f} "(${l})"`).join(", ")}. Change fields in this plugin's data.json.` });
   }
 }

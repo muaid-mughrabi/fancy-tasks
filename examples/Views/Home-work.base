@@ -1,0 +1,161 @@
+# Views for the Home page (Home.md embeds them by name). Styled by the "home" CSS snippet.
+# Snoozed tickets (snooze: <date> in the future) are left out until that day.
+filters:
+  and:
+  - '!file.inFolder("Templates")'
+formulas:
+  due: if(submission, submission, if(deadline, deadline, defense))
+  next_date: '[session, submission, defense, deadline, start].filter(value && value >= today()).sort()[0]'
+  when: if(status == "waiting", "🔔 follow-up due " + follow_up.relative(), if(formula.due && formula.due < today(), "🔴 overdue " + formula.due.relative(), if(formula.due && formula.due <= today() + "2d", "🟠 due " + formula.due.relative(), if(planned && planned < today(), "📌 planned " + planned.relative(), if(planned, "📌 today", if(session && session >= today() && session <= today() + "1d", "🎓 session " + session.relative(), "▶ doing"))))))
+  what: if(next, "→ " + next, "⚠ add a next step")
+  upcoming: if(formula.next_date == session, "🎓 session", if(formula.next_date == submission, "📥 due", if(formula.next_date == defense, "🎤 defense", if(formula.next_date == start, "📍 starts", "⏰ deadline")))) + " " + formula.next_date.format("ddd D MMM") + " (" + formula.next_date.relative() + ")"
+  chase: if(follow_up && follow_up <= today(), "🔔 chase now", if(follow_up, "⏳ follow up " + follow_up.relative(), ""))
+  done_on: closed.format("ddd D MMM")
+  ago: activity_at.relative()
+  woke: '"💤 until " + snooze.format("ddd D MMM")'
+  age: '"open since " + created.format("MMM YYYY")'
+views:
+- type: list
+  name: Activity
+  limit: 6
+  filters:
+    and:
+    - activity_at && activity_at >= now() - "7d"
+  sort:
+  - property: activity_at
+    direction: DESC
+  order:
+  - file.name
+  - activity
+  - formula.ago
+- type: list
+  name: Today
+  limit: 7
+  filters:
+    and:
+    - kind == "task"
+    - status != "done"
+    - or:
+      - and:
+        - status == "waiting"
+        - follow_up && follow_up <= today()
+      - and:
+        - status != "waiting"
+        - or:
+          - status == "doing"
+          - planned && planned <= today()
+          - formula.due && formula.due <= today() + "2d"
+          - session && session >= today() && session <= today() + "1d"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: formula.due
+    direction: ASC
+  - property: planned
+    direction: ASC
+  order:
+  - file.name
+  - formula.when
+  - formula.what
+- type: list
+  name: Up next
+  limit: 12
+  filters:
+    and:
+    - kind == "task"
+    - status == "todo"
+    - snooze.isEmpty() || snooze <= today()
+    - '!(planned && planned <= today())'
+    - '!(formula.due && formula.due <= today() + "2d")'
+  sort:
+  - property: planned
+    direction: ASC
+  - property: formula.due
+    direction: ASC
+  - property: created
+    direction: ASC
+  order:
+  - file.name
+  - formula.what
+  - formula.age
+- type: list
+  name: Next 14 days
+  filters:
+    and:
+    - kind == "task"
+    - status != "done"
+    - formula.next_date && formula.next_date <= today() + "14d"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: formula.next_date
+    direction: ASC
+  order:
+  - file.name
+  - formula.upcoming
+- type: list
+  name: To sort
+  filters:
+    and:
+    - or:
+      - and:
+        - file.inFolder("Inbox")
+        - kind.isEmpty()
+      - and:
+        - kind == "task"
+        - status.isEmpty()
+        - snooze.isEmpty() || snooze <= today()
+  order:
+  - file.name
+  - type
+- type: list
+  name: Waiting
+  filters:
+    and:
+    - kind == "task"
+    - status == "waiting"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: follow_up
+    direction: ASC
+  order:
+  - file.name
+  - waiting_on
+  - formula.chase
+- type: list
+  name: Done this week
+  filters:
+    and:
+    - kind == "task"
+    - status == "done"
+    - closed && closed >= today() - "7d"
+  sort:
+  - property: closed
+    direction: DESC
+  order:
+  - file.name
+  - formula.done_on
+- type: list
+  name: Snoozed
+  filters:
+    and:
+    - kind == "task"
+    - status != "done"
+    - snooze && snooze > today()
+  sort:
+  - property: snooze
+    direction: ASC
+  order:
+  - file.name
+  - formula.woke
+- type: list
+  name: Backlog
+  filters:
+    and:
+    - kind == "task"
+    - status == "backlog"
+    - snooze.isEmpty() || snooze <= today()
+  sort:
+  - property: created
+    direction: ASC
+  order:
+  - file.name
+  - formula.age

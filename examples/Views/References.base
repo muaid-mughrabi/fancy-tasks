@@ -1,0 +1,21 @@
+# Reference notes: information kept for later, no task to do. Turn a ticket into one with
+# right-click > "Turn into reference" (or the command), and back with "Turn back into a task".
+filters:
+  and:
+  - kind == "reference"
+  - '!file.inFolder("Templates")'
+formulas:
+  updated: 'file.mtime.relative()'
+views:
+- type: table
+  name: References
+  groupBy:
+    property: file.folder
+    direction: ASC
+  order:
+  - file.name
+  - tags
+  - formula.updated
+  sort:
+  - property: file.name
+    direction: ASC

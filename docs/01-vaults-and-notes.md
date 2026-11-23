@@ -30,11 +30,11 @@ Steps:
    - `types.json` sets the property types (dates as dates, numbers as numbers).
    - `app.json` sets the new-note folder (`Inbox`) and the attachment folder.
    - `templates.json` points the Templates plugin at `Templates/`.
-   - `snippets/wide-boards.css` makes boards full width.
+   - `snippets/wide-boards.css` makes boards full width; `snippets/home.css` styles Home as cards (doc 07).
    If the vault already has these files, merge them by hand instead of overwriting.
 3. Copy `examples/Views/` to `<your-vault>/Views/` and `examples/Templates/` to `<your-vault>/Templates/`.
-4. Copy `examples/Home-work.md` (or `Home-personal.md`) to `<your-vault>/Home.md`.
-5. Open Obsidian, then *Settings → Appearance → CSS snippets* and enable `wide-boards`.
+4. Copy `examples/Home-work.md` (or `Home-personal.md`) to `<your-vault>/Home.md`, and `examples/Views/Home-work.base` (or `Home-personal.base`) to `<your-vault>/Views/Home.base` (doc 07).
+5. Open Obsidian, then *Settings → Appearance → CSS snippets* and enable `wide-boards` and `home`.
 
 ## Property schema
 
@@ -48,7 +48,13 @@ Steps:
 | `deadline`, `submission`, `session`, `defense` | date | Date fields kept in step with Google Calendar by Task Calendar Sync. |
 | `start` | datetime | Start of a `kind: session` note (date and time). |
 | `<field>_event` | text | Written by Task Calendar Sync: link to the Google event for that field. Do not edit by hand unless you mean to re-link. |
-| `created`, `closed` | date | When the task was opened / finished. |
+| `created`, `closed` | date | When the task was opened / finished. `closed` is set automatically when the status becomes `done` (doc 04). |
+| `next` | text | The next physical step, starting with a verb. Shown on Home (doc 07). |
+| `planned` | date | The day you intend to work on it; puts it under Today. Not sent to the calendar. |
+| `waiting_on`, `follow_up` | text, date | For `waiting` tasks: who you wait for, and when to chase. `follow_up` is set a week ahead automatically (doc 04). |
+| `snooze` | date | Hide from Home until this date (doc 07). |
+| `activity`, `activity_at` | text, datetime | Last thing that happened to the task, e.g. "📨 Answer from X" (doc 08). |
+| `agent_thread`, `agent_link`, `mail_thread`, `mail_draft`, `mail_query` | text | Used by the optional Ticket Agent plugin (doc 08). |
 | `planned_hours`, `done_hours` | number | Session length; `planned_hours` sets the event length when a session event is created. |
 | `client` | text | For sessions: a link to the client note, e.g. `"[[Client A]]"`. Used in the session event title. |
 | `task` | text | On event notes in `Calendar/`: a link back to the task. |
@@ -67,11 +73,13 @@ Date values are `YYYY-MM-DD` (all-day) or `YYYY-MM-DDTHH:mm` (timed).
 | `todo` | Committed and ready to start. |
 | `doing` | Being worked on this week. Keep this column short. |
 | `waiting` | Blocked on someone or something else. |
-| `done` | Finished. Stays on the Active board for 14 days after the note was last modified, then drops off (still visible in the *All tasks* table). |
+| `done` | Finished. `closed` is set to today automatically; *Done this week* on Home lists the last 7 days. |
+| (empty) | Not sorted yet: new notes start like this and show under *To sort* on Home. |
 
-A note with no `status` still matches the task views; in a Kanban grouped by status it lands in an "empty" group (verify how your Obsidian version labels it).
+Two related note types that are **not** tasks:
 
-Optional extension, based on research on implementation intentions: give each `todo`/`doing` note a `next_action` (one concrete step, starting with a verb) and a `planned` day, and build the Home page around "what do I do next" instead of showing every item. The example views do not use these properties; see doc 02 for a sketch.
+- `kind: reference`: information kept for later, nothing to do. No status; off every board and Home list; listed in `Views/References.base`.
+- Tasks tagged `points` or `coupons` are tasks, but with their own Home section (doc 07): points (loyalty points, miles) must be used before they expire, so their `deadline` is the expiry date; coupons are used only if handy.
 
 ## Templates
 
@@ -79,7 +87,7 @@ In `examples/Templates/`:
 
 | Template | For |
 |---|---|
-| `Task.md` | A task. Includes an inline Bases table that lists event notes in `Calendar/` that link to this task. |
+| `Task.md` | A task, with `next`, `planned` and `deadline` and a one-line hint for each (as an HTML comment, hidden in reading view). |
 | `Session.md` | A timed appointment with a client (`kind: session`, `start`, `planned_hours`). Task Calendar Sync creates its event in the "sessions" calendar if one is set. |
 | `Library item.md` | Books, things to watch, reference material. |
 | `Event note (for Full Calendar).md` | The template Full Calendar Remastered uses when you choose *Open Note* on an event (doc 03). The `{{...}}` placeholders are filled by that plugin; check its documentation for the current list. |

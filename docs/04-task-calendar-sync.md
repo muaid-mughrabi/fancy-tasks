@@ -32,6 +32,19 @@ Details:
 - **Ignored:** files under `Templates/`, non-Markdown files, and calendars that are not set in this plugin's settings.
 - **Commands:** *Sync now*, *Re-link existing calendar events*, *Show sync log*. The status bar shows the last sync time or an error.
 
+## Closed and follow-up dates (0.2.0)
+
+Independent of the calendar connection, the plugin remembers each note's `status` and reacts when it changes:
+
+| Status change | Effect |
+|---|---|
+| → `done` | `closed: <today>` (if not set) |
+| `done` → anything else | `closed` removed |
+| → `waiting` | `follow_up: <today + 7 days>` (if not set) |
+| `waiting` → anything else | `follow_up` removed |
+
+This also catches changes made on another device: when the edited note syncs to the desktop, the change is seen there. Setting: *Set closed and follow-up dates* (`stampClosed`, `followUpDays` in `data.json`).
+
 ## Install
 
 Requirements: Obsidian 1.12+ (1.14+ for the Kanban boards anyway), Full Calendar Remastered installed, enabled and logged in to Google in the same vault (doc 03).

@@ -1,0 +1,132 @@
+/* Dashboard look for notes with `cssclasses: [home]` (the Home pages).
+   - each embedded base view becomes a card; its title is the view name, with a count badge
+   - the Bases toolbar (sort, filter, ...) is hidden; open the .base file to change a view
+   - empty cards shrink to a faded title line
+   - wide screens: cards in a grid; Today spans the full width; phones: one column */
+
+.home .metadata-container, .home .frontmatter-container { display: none !important; }
+
+/* ---------- grid (reading view) ---------- */
+.markdown-preview-view.home .markdown-preview-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: 14px 16px;
+  align-items: start;
+  max-width: none !important;
+}
+.markdown-preview-view.home .markdown-preview-section > div { grid-column: 1 / -1; }
+.markdown-preview-view.home .markdown-preview-section > div:has(.bases-embed) { grid-column: auto; }
+.markdown-preview-view.home .markdown-preview-section > div:has(.bases-embed[src$="#Today"]) { grid-column: 1 / -1; }
+.markdown-preview-view.home .markdown-preview-section > div:has(.bases-embed) > p { margin: 0; }
+
+/* empty cards shrink to their title line and fade (they can't be hidden: Bases only renders visible views) */
+.home .bases-embed:not([src$="#Today"]):has(.bases-list-container:empty) { opacity: 0.5; padding-bottom: 8px; }
+.home .bases-embed:not([src$="#Today"]):has(.bases-list-container:empty) .bases-header { margin-bottom: 0; }
+.home .bases-embed[src$="#Today"] .bases-list-container:empty::after {
+  content: "Nothing planned. Pick something from the board, or enjoy the free time.";
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+/* ---------- card ---------- */
+.home .bases-embed {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  padding: 10px 14px 12px;
+  margin: 0;
+}
+.home .bases-embed[src$="#Today"] {
+  border-left: 4px solid var(--interactive-accent);
+}
+
+/* header: view name + count only */
+.home .bases-embed .bases-header { padding: 0; margin-bottom: 4px; border: none; min-height: 0; }
+.home .bases-embed .bases-toolbar { padding: 0; gap: 6px; }
+.home .bases-embed .bases-toolbar-item:not(.bases-toolbar-views-menu):not(.bases-toolbar-result-count) { display: none; }
+.home .bases-embed .bases-toolbar .text-button-icon { display: none; }
+.home .bases-embed .bases-toolbar .text-icon-button { padding: 0; background: none; box-shadow: none; }
+.home .bases-embed .bases-toolbar-views-menu .text-button-label {
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.home .bases-embed .bases-toolbar-result-count .text-button-label {
+  font-size: 0.72em;
+  color: var(--text-faint);
+}
+.home .bases-search-row { display: none; }
+
+/* ---------- list rows ---------- */
+.home .bases-embed .bases-view { min-height: 0 !important; height: auto !important; padding: 0; }
+.home .bases-list-container { padding: 0; min-height: 0 !important; }
+.home .bases-list-group-list { gap: 0; }
+.home .bases-list-item {
+  padding: 6px 0;
+  margin-left: 0 !important;
+  border-top: 1px solid var(--background-modifier-border);
+}
+.home .bases-list-item:first-child { border-top: none; }
+.home .bases-list-item .list-bullet { display: none; }
+.home .bases-list-item-properties { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 2px; }
+.home .bases-list-separator { display: none; }
+.home .bases-list-property:first-of-type { flex: 1 1 100%; }
+.home .bases-list-property:first-of-type .internal-link { font-weight: 600; color: var(--text-normal); text-decoration: none; }
+.home .bases-list-property:first-of-type .internal-link:hover { color: var(--text-accent); text-decoration: underline; }
+.home .bases-list-property:not(:first-of-type) { font-size: 0.86em; color: var(--text-muted); }
+
+/* ---------- the rest of the page ---------- */
+.markdown-preview-view.home .inline-title { margin-bottom: 0; }
+.home .home-nav, .home p:has(> .home-nav) { font-size: 0.9em; color: var(--text-muted); }
+.home .bases-list-item { width: 100%; box-sizing: border-box; }
+/* nav links as quiet pills */
+.markdown-preview-view.home .markdown-preview-section > .el-p:not(:has(.internal-embed)) a.internal-link {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 0 4px 4px 0;
+  border-radius: 999px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.88em;
+}
+.markdown-preview-view.home .markdown-preview-section > .el-p:not(:has(.internal-embed)) a.internal-link:hover { color: var(--text-accent); }
+
+/* ---------- folded sections: > [!fold]- Waiting ---------- */
+.home .callout[data-callout="fold"] {
+  --callout-color: var(--text-muted-rgb, 150, 150, 150);
+  --callout-icon: lucide-chevron-right;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  padding: 0;
+  margin: 0;
+  mix-blend-mode: normal;
+}
+.home .callout[data-callout="fold"] > .callout-title {
+  padding: 10px 14px;
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.home .callout[data-callout="fold"] > .callout-title .callout-icon { display: none; }
+.home .callout[data-callout="fold"] > .callout-title .callout-fold { order: -1; padding-right: 6px; }
+.home .callout[data-callout="fold"] > .callout-title:hover { color: var(--text-normal); }
+.home .callout[data-callout="fold"] > .callout-content { padding: 0 4px 4px; }
+/* inside a fold the card's own frame and title are redundant (the fold title says it) */
+.home .callout[data-callout="fold"] .bases-embed { background: none; border: none; padding: 0 10px 8px; }
+.home .callout[data-callout="fold"] .bases-embed .bases-header { display: none; }
+.home .callout[data-callout="fold"] .bases-embed:has(.bases-list-container:empty) { opacity: 1; }
+.home .callout[data-callout="fold"] .bases-list-container:empty::after { content: "Nothing here."; color: var(--text-faint); font-size: var(--font-ui-small); }
+/* folds stack full width under the cards */
+.markdown-preview-view.home .markdown-preview-section > div:has(.callout) { grid-column: 1 / -1; }
+
+/* ---------- editing mode (live preview): no per-card edit buttons ---------- */
+.home .cm-embed-block .edit-block-button { display: none; }
+.home.markdown-source-view .cm-embed-block:hover { box-shadow: none; }

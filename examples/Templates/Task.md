@@ -2,22 +2,20 @@
 kind: task
 status: todo
 type:
+course:
 stage:
+next:
+planned:
 deadline:
 tags: []
 ---
 
-## Dates
+<!--
+next:     the first physical step, small enough to start in 5 minutes ("email Anna for the room", not "organise workshop")
+planned:  the day you intend to work on it (puts it under Today on Home)
+deadline: the hard date, if there is one; it goes into the calendar by itself
+type:     your areas, e.g. teaching, research, admin (course: for teaching, stage: for long projects)
+Bigger than about 2 hours? Split it, or write only the first chunk as `next`.
+-->
 
-Calendar dates live in Google Calendar. Open the event in the Full Calendar view,
-choose **Open Note**, and set `task` in that note to link this task; it then shows up here.
-
-```base
-filters:
-  and:
-    - file.hasLink(this.file)
-    - file.inFolder("Calendar")
-views:
-  - type: table
-    name: Dates
-```
+## Notes

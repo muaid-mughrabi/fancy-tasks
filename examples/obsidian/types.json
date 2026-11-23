@@ -21,6 +21,18 @@
     "tags": "tags",
     "link": "text",
     "source": "text",
-    "active": "checkbox"
+    "active": "checkbox",
+    "next": "text",
+    "planned": "date",
+    "waiting_on": "text",
+    "follow_up": "date",
+    "snooze": "date",
+    "activity": "text",
+    "activity_at": "datetime",
+    "agent_thread": "text",
+    "agent_link": "text",
+    "mail_thread": "text",
+    "mail_draft": "text",
+    "mail_query": "text"
   }
 }

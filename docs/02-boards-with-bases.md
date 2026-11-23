@@ -132,37 +132,21 @@ views:
 
 ## Home note
 
-Embed a single view with `![[Views/<file>.base#<view name>]]`:
+Embed a single view with `![[Views/<file>.base#<view name>]]`. A board can be embedded directly:
 
 ```markdown
----
-cssclasses: [wide]
----
 ![[Views/Board.base#Active]]
-
-**Views:** [[Views/Board.base|Boards]] · [[Views/Research.base|Papers & conferences]] · [[Views/Dates.base|Dates]]
 ```
+
+The tested setup goes further and builds Home from a dedicated `Views/Home.base` (Today, Up next, To sort, Waiting, …) styled as cards. That is described in [doc 07](07-home-page.md).
 
 `cssclasses: [wide]` plus the `wide-boards.css` snippet (in `examples/obsidian/snippets/`) make the note and opened `.base` files use the full window width. Enable the snippet under *Settings → Appearance → CSS snippets*.
 
-To open Home on start, use the core *Bookmarks* plugin or a "default note" community plugin (not covered here).
+Bases quirks found while building the views (Obsidian 1.15):
 
-## Optional: a next-actions view (untested sketch)
+- `!status` does not match a missing property; use `status.isEmpty()`.
+- A negated check on a list that may be missing needs a guard: `!(tags && tags.contains("points"))`, not `!tags.contains("points")`.
+- `date.relative()` gives "in 3 days" / "2 days ago"; date arithmetic works as `today() + "2d"`.
+- `limit:` caps a view; `sort:` takes a list of `{property, direction}`.
 
-Research on implementation intentions and planning suggests the Home page should lead to the next concrete action rather than show everything. If you add `next_action` and `planned` properties (doc 01), a view along these lines could go first on Home. It was not part of the tested setup; check the syntax in your version.
-
-```yaml
-  - type: table
-    name: Today
-    filters:
-      and:
-        - 'status != "done"'
-        - 'status != "backlog"'
-        - or:
-            - 'planned <= today()'
-            - 'deadline <= today() + "2d"'
-    order: [file.name, note.next_action, note.planned, note.deadline]
-    limit: 7
-```
-
-What Bases does not do: draw a calendar grid (use Full Calendar Remastered), send notifications (use calendar alerts), or write values on its own (use a plugin such as Task Calendar Sync).
+What Bases does not do: draw a calendar grid (use Full Calendar Remastered), send notifications (use calendar alerts or the Ticket Agent plugin, doc 08), or write values on its own (Task Calendar Sync writes `closed` and `follow_up`, doc 04).
