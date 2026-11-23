@@ -66,7 +66,7 @@ Lessons from building it:
 
 ## Open Home on start
 
-The free community plugin **Homepage** opens a note on start. Settings used ([`homepage-data.json`](../examples/obsidian/homepage-data.json), copy to `.obsidian/plugins/homepage/data.json`): open `Home.md` in **Reading view**, replace all open notes, and also open it when the last tab is closed.
+The free community plugin **Homepage** opens a note on start. Settings used ([`homepage-data.json`](../examples/obsidian/homepage-data.json), copy to `.obsidian/plugins/homepage/data.json`): open `Home.md` in **Reading view**, replace all open notes, also open it when the last tab is closed, and **always apply** the view (otherwise a Home tab restored from the last session keeps editing mode, which happened on Android).
 
 ## Calendar blocks
 
